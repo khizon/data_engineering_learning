@@ -161,3 +161,6 @@ cython_debug/
 
 secrets/*
 data/*
+config/*
+plugins/*
+logs/*
