@@ -41,8 +41,8 @@ def get_keys():
         PATH = os.path.join(os.getcwd(), 'secrets', 'api_headers.json')
         with open(PATH, 'r') as file:
             headers = json.load(file)
-        return headers
         print(f'MAL Headers Loaded')
+        return headers
     except:
         print(f'MAL headers NOT Loaded')
 
@@ -174,7 +174,31 @@ def ingest_top_airing_anime():
     headers = get_keys()
     
     top_airing = get_top_airing_anime(headers)
-    update_bigquery_table(project_id, dataset_id, top_anime_table, top_airing)
+    PATH = os.path.join(os.getcwd(), 'dags', 'data')
+    os.makedirs(PATH, exist_ok=True)
+    PATH = os.path.join(PATH, 'top_airing.parquet')
+    top_airing.to_parquet(PATH)
+
+def update_top_airing_anime():
+    _ = get_keys()
+
+    client = bigquery.Client()
+    query = f"""
+    SELECT date_pulled
+    FROM `{project_id}.{dataset_id}.{top_anime_table_r}`
+    WHERE DATE(date_pulled) = CURRENT_DATE()
+    """
+    print(query)
+    query_job = client.query(query)
+    # Convert the result to a list
+    results = [row.date_pulled for row in query_job]
+    if len(results) == 0:
+        # Current date not yet in database, upload
+        PATH = os.path.join(os.getcwd(), 'dags', 'data', 'top_airing.parquet')
+        top_airing = pd.read_parquet(PATH)
+        update_bigquery_table(project_id, dataset_id, top_anime_table, top_airing)
+    else:
+        print(f'Top Anime for Today already uploaded')
 
 def ingest_anime_info():
 
@@ -215,6 +239,14 @@ def ingest_anime_info():
         anime_info = anime_info[anime_info['data'].isna()]
         anime_info.drop(columns=['data'], errors='ignore', inplace=True)
 
+    PATH = os.path.join(os.getcwd(), 'dags', 'data')
+    os.makedirs(PATH, exist_ok=True)
+    PATH = os.path.join(PATH, 'anime_info.parquet')
+    anime_info.to_parquet(PATH)
+
+def update_anime_info():
+    PATH = os.path.join(os.getcwd(), 'dags', 'data', 'anime_info.parquet')
+    anime_info = pd.read_parquet(PATH)
     update_bigquery_table(project_id, dataset_id, anime_info_table, anime_info)
 
 with DAG(
@@ -228,9 +260,21 @@ with DAG(
         python_callable = ingest_top_airing_anime
     )
 
+    task_update_top_airing_anime = PythonOperator(
+        task_id = 'update_top_airing_anime',
+        python_callable = update_top_airing_anime
+    )
+
     task_ingest_anime_info = PythonOperator(
         task_id = 'ingest_anime_info',
         python_callable = ingest_anime_info
     )
 
-    task_ingest_top_airing_anime >> task_ingest_anime_info
+    task_update_anime_info = PythonOperator(
+        task_id = 'update_anime_info',
+        python_callable = update_anime_info
+    )
+
+    task_ingest_top_airing_anime >> task_update_top_airing_anime
+    task_update_top_airing_anime >> task_ingest_anime_info
+    task_ingest_anime_info >> task_update_anime_info
