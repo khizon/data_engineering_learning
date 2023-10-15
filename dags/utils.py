@@ -1,27 +1,14 @@
-from datetime import datetime, timedelta
-import os
 import json
 import requests
 import pandas as pd
 from tqdm import tqdm
-from airflow import DAG
-from airflow.operators.python import PythonOperator
-
 from pandas_gbq import to_gbq
 from google.cloud import bigquery
 import re
 import pytz
+import os
+from datetime import datetime, timedelta
 
-# Set the timezone to Tokyo (UTC+9)
-tokyo_tz = pytz.timezone('Asia/Tokyo')
-
-
-default_args = {
-    'owner': 'kiel',
-    'start_date': datetime(2023, 10, 14, tzinfo=tokyo_tz),
-    'retry': 5,
-    'retry_delay': timedelta(minutes=5)
-}
 project_id = 'mal-data-engineering'
 dataset_id = 'my_anime_list'
 anime_info_table_r = 'anime_info'
@@ -170,47 +157,60 @@ def update_bigquery_table(project_id, dataset_id, table_id, dataframe):
     # Append data to the table
     to_gbq(dataframe, f'{dataset_id}.{table_id}', project_id=project_id, if_exists='append')
 
+def check_top_airing_anime_updated():
+    _ = get_keys()
+    try:
+        client = bigquery.Client()
+        query = f"""
+        SELECT date_pulled
+        FROM `{project_id}.{dataset_id}.{top_anime_table_r}`
+        WHERE DATE(date_pulled) = CURRENT_DATE('Asia/Tokyo')
+        """
+        print(query)
+        query_job = client.query(query)
+        # Convert the result to a list
+        results = [row.date_pulled for row in query_job]
+        if len(results) == 0:
+            return False
+        else:
+            return True
+    except:
+        return False
+
 def ingest_top_airing_anime():
     headers = get_keys()
-    
-    top_airing = get_top_airing_anime(headers)
-    PATH = os.path.join(os.getcwd(), 'dags', 'data')
-    os.makedirs(PATH, exist_ok=True)
-    PATH = os.path.join(PATH, 'top_airing.parquet')
-    top_airing.to_parquet(PATH)
+
+    if ~check_top_airing_anime_updated():
+        print('Top Airing Anime not yet updated. Pulling from API')
+        top_airing = get_top_airing_anime(headers)
+        PATH = os.path.join(os.getcwd(), 'dags', 'data')
+        os.makedirs(PATH, exist_ok=True)
+        PATH = os.path.join(PATH, 'top_airing.parquet')
+        top_airing.to_parquet(PATH)
+    else:
+        print('Top Airing Anime already updated')
 
 def update_top_airing_anime():
     _ = get_keys()
 
-    client = bigquery.Client()
-    query = f"""
-    SELECT date_pulled
-    FROM `{project_id}.{dataset_id}.{top_anime_table_r}`
-    WHERE DATE(date_pulled) = CURRENT_DATE()
-    """
-    print(query)
-    query_job = client.query(query)
-    # Convert the result to a list
-    results = [row.date_pulled for row in query_job]
-    if len(results) == 0:
+    if ~check_top_airing_anime_updated():
         # Current date not yet in database, upload
         PATH = os.path.join(os.getcwd(), 'dags', 'data', 'top_airing.parquet')
         top_airing = pd.read_parquet(PATH)
         update_bigquery_table(project_id, dataset_id, top_anime_table, top_airing)
+        print(f'Top Airing Anime updated')
     else:
-        print(f'Top Anime for Today already uploaded')
+        print(f'Top Airing Anime already updated')
 
-def ingest_anime_info():
-
-    headers = get_keys()
-
+def check_anime_info():
+    _ = get_keys()
     # Initialize BigQuery client
     client = bigquery.Client()
 
     try:
         # Define your query
         query = f"""
-        SELECT taa.myanimelist_id
+        SELECT DISTINCT(taa.myanimelist_id)
         FROM `{project_id}.{dataset_id}.{top_anime_table_r}` AS taa
         LEFT JOIN `{project_id}.{dataset_id}.{anime_info_table_r}` AS ai
         ON taa.myanimelist_id = ai.myanimelist_id
@@ -226,10 +226,34 @@ def ingest_anime_info():
         results = [row.myanimelist_id for row in query_job]
 
         print(f'Anime ids not in table yet: {len(results)}')
+        return results
     except:
-        print(f'Table was not accessed.')
+        print(f'Tables were not accessed.')
 
-    # anime_info = get_anime_info(headers, results)
+        try:
+            # Define your query
+            query = f"""
+            SELECT DISTINCT(myanimelist_id)
+            FROM `{project_id}.{dataset_id}.{top_anime_table_r}` AS taa
+            """
+            # Run the query
+            print(query)
+            query_job = client.query(query)
+
+            # Convert the result to a list
+            results = [row.myanimelist_id for row in query_job]
+
+            print(f'Anime ids not in table yet: {len(results)}')
+            return results
+        except:
+            print(f'Tables was not accessed.')
+            return []
+
+def ingest_anime_info():
+
+    headers = get_keys()
+
+    results = check_anime_info()
     anime_info = get_anime_info(headers, results)
     # Cleans columns that are lists of dicts -> just list of names
     anime_info = anime_info.applymap(lambda x: extract_names_from_list_of_dicts(x) if isinstance(x, list) else x)
@@ -245,36 +269,10 @@ def ingest_anime_info():
     anime_info.to_parquet(PATH)
 
 def update_anime_info():
+    _ = get_keys()
+    results = check_anime_info()
     PATH = os.path.join(os.getcwd(), 'dags', 'data', 'anime_info.parquet')
     anime_info = pd.read_parquet(PATH)
+    # anime_info = anime_info.loc[anime_info['myanimelist_id'].isin(results)]
     update_bigquery_table(project_id, dataset_id, anime_info_table, anime_info)
 
-with DAG(
-    default_args=default_args,
-    dag_id="ingest_MAL_data",
-    schedule_interval='@daily'
-) as dag:
-
-    task_ingest_top_airing_anime = PythonOperator(
-        task_id = 'ingest_top_airing_anime',
-        python_callable = ingest_top_airing_anime
-    )
-
-    task_update_top_airing_anime = PythonOperator(
-        task_id = 'update_top_airing_anime',
-        python_callable = update_top_airing_anime
-    )
-
-    task_ingest_anime_info = PythonOperator(
-        task_id = 'ingest_anime_info',
-        python_callable = ingest_anime_info
-    )
-
-    task_update_anime_info = PythonOperator(
-        task_id = 'update_anime_info',
-        python_callable = update_anime_info
-    )
-
-    task_ingest_top_airing_anime >> task_update_top_airing_anime
-    task_update_top_airing_anime >> task_ingest_anime_info
-    task_ingest_anime_info >> task_update_anime_info
