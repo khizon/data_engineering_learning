@@ -1,0 +1,4 @@
+2023-10-16 05:24:28,054 - utils - INFO - Current Working Directory: /home/runner/work/data_engineering_learning/data_engineering_learning
+2023-10-16 05:24:28,054 - utils - INFO - Google Application Credentials Set
+2023-10-16 05:24:28,054 - utils - INFO - /home/runner/work/data_engineering_learning/data_engineering_learning/secrets/api_headers.json
+2023-10-16 05:24:28,054 - utils - INFO - MAL headers NOT Loaded
