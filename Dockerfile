@@ -1,6 +1,10 @@
 # Use an appropriate base image, such as Python.
 FROM python:3.11-slim
 
+# Add git
+RUN apt-get -y update
+RUN apt-get -y install git
+
 # Set the working directory inside the container.
 WORKDIR /data_engineering
 
