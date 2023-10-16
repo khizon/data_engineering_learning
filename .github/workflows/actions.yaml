@@ -31,7 +31,8 @@ jobs:
         run: |
           # mkdir -p secrets
           echo pwd
-          echo "${{ secrets.KEYS }}" | base64 --decode > keys.json
+          # echo "${{ secrets.API_HEADERS }}" | base64 --decode > headers.json
+          # echo "${{ secrets.GOOGLEAPI_KEYS }}" | base64 --decode > google_api_keys.json
           
       - name: execute py script # run main.py
         run: python src/main.py
