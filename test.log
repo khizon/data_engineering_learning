@@ -3,3 +3,7 @@
   "X-RapidAPI-Key": "Test Key",
   "X-RapidAPI-Host": "Test API Host"
 }
+2023-10-16 05:03:37,965 - INFO - Contents of keys.json: {
+  "X-RapidAPI-Key": "Test Key",
+  "X-RapidAPI-Host": "Test API Host"
+}
