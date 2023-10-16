@@ -3,8 +3,6 @@ import logging
 import os
 from utils import *
 
-# Configure the logging settings
-
 def main():
     try:
         get_keys()

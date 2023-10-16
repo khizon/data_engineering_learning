@@ -38,6 +38,12 @@ top_anime_table = 'top_airing_anime'
 
 def get_keys():
     logger.info(f'Current Working Directory: {os.getcwd()}')
+    # Read the contents of secrets/keys.json
+    with open(os.path.join(os.getcwd(), 'secrets', 'keys.json'), 'r') as file:
+        keys_data = json.load(file)
+
+    # Log the contents to data/test.log
+    logging.info('Contents of keys.json: %s', json.dumps(keys_data, indent=2))
     PATH = os.path.join(os.getcwd(), 'secrets', 'google_api_keys.json')
     try:
         os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = PATH
