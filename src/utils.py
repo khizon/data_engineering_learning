@@ -17,8 +17,9 @@ tokyo_tz = pytz.timezone('Asia/Tokyo')
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+os.makedirs('logs', exist_ok=True)
 logger_file_handler = logging.handlers.RotatingFileHandler(
-    os.path.join(os.getcwd(), 'data', f"{datetime.now(tokyo_tz).strftime('%Y-%m-%d')}.log"),
+    os.path.join(os.getcwd(), 'logs', f"{datetime.now(tokyo_tz).strftime('%Y-%m-%d')}.log"),
     maxBytes=1024 * 1024,
     backupCount=1,
     encoding="utf8",
