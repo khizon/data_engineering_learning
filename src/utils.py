@@ -43,7 +43,8 @@ def get_keys():
         keys_data = json.load(file)
 
     # Log the contents to data/test.log
-    logging.info('Contents of keys.json: %s', json.dumps(keys_data, indent=2))
+    logger.info(f'Contents of keys.json: {json.dumps(keys_data, indent=2)}')
+    
     PATH = os.path.join(os.getcwd(), 'secrets', 'google_api_keys.json')
     try:
         os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = PATH
