@@ -4,7 +4,7 @@ import os
 
 # Configure the logging settings
 os.makedirs('../logs', exist_ok=True)
-logging.basicConfig(filename='../logs/test.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='test.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def main():
     try:
