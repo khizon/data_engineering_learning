@@ -24,6 +24,7 @@ jobs:
 
       - name: Decode Base64 and Save to secrets/api_headers.json
         run: |
+          mkdir -p secrets
           echo "${{ secrets.KEYS }}" | base64 --decode > secrets/keys.json
           
       - name: execute py script # run main.py
