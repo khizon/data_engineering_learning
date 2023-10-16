@@ -1,0 +1,51 @@
+2023-10-16 06:30:53,566 - utils - INFO - Getting Keys. Current Working Directory: /home/runner/work/data_engineering_learning/data_engineering_learning
+2023-10-16 06:30:53,566 - utils - INFO - Google Application Credentials Set
+2023-10-16 06:30:53,566 - utils - INFO - /home/runner/work/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-16 06:30:53,566 - utils - INFO - MAL Headers Loaded
+2023-10-16 06:30:53,566 - utils - INFO - Getting Keys. Current Working Directory: /home/runner/work/data_engineering_learning/data_engineering_learning
+2023-10-16 06:30:53,566 - utils - INFO - Google Application Credentials Set
+2023-10-16 06:30:53,566 - utils - INFO - /home/runner/work/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-16 06:30:53,566 - utils - INFO - MAL Headers Loaded
+2023-10-16 06:30:53,570 - utils - INFO - 
+        SELECT date_pulled
+        FROM `mal-data-engineering.my_anime_list.top_airing_anime`
+        WHERE DATE(date_pulled) = CURRENT_DATE('Asia/Tokyo')
+        
+2023-10-16 06:30:54,852 - utils - INFO - Results: 50
+2023-10-16 06:30:54,852 - utils - INFO - Top Airing Anime already updated
+2023-10-16 06:30:54,852 - utils - INFO - Getting Keys. Current Working Directory: /home/runner/work/data_engineering_learning/data_engineering_learning
+2023-10-16 06:30:54,853 - utils - INFO - Google Application Credentials Set
+2023-10-16 06:30:54,853 - utils - INFO - /home/runner/work/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-16 06:30:54,853 - utils - INFO - MAL Headers Loaded
+2023-10-16 06:30:54,853 - utils - INFO - Getting Keys. Current Working Directory: /home/runner/work/data_engineering_learning/data_engineering_learning
+2023-10-16 06:30:54,853 - utils - INFO - Google Application Credentials Set
+2023-10-16 06:30:54,853 - utils - INFO - /home/runner/work/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-16 06:30:54,853 - utils - INFO - MAL Headers Loaded
+2023-10-16 06:30:54,856 - utils - INFO - 
+        SELECT DISTINCT(taa.myanimelist_id)
+        FROM `mal-data-engineering.my_anime_list.top_airing_anime` AS taa
+        LEFT JOIN `mal-data-engineering.my_anime_list.anime_info` AS ai
+        ON taa.myanimelist_id = ai.myanimelist_id
+        WHERE DATE(taa.date_pulled) = CURRENT_DATE()
+        AND ai.myanimelist_id IS NULL
+        
+2023-10-16 06:30:56,098 - utils - INFO - Anime ids not in table yet: 18
+2023-10-16 06:30:58,386 - utils - INFO - Debug Mode exiting loop after 1 request
+2023-10-16 06:30:58,405 - utils - INFO - Getting Keys. Current Working Directory: /home/runner/work/data_engineering_learning/data_engineering_learning
+2023-10-16 06:30:58,406 - utils - INFO - Google Application Credentials Set
+2023-10-16 06:30:58,406 - utils - INFO - /home/runner/work/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-16 06:30:58,406 - utils - INFO - MAL Headers Loaded
+2023-10-16 06:30:58,406 - utils - INFO - Getting Keys. Current Working Directory: /home/runner/work/data_engineering_learning/data_engineering_learning
+2023-10-16 06:30:58,406 - utils - INFO - Google Application Credentials Set
+2023-10-16 06:30:58,406 - utils - INFO - /home/runner/work/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-16 06:30:58,406 - utils - INFO - MAL Headers Loaded
+2023-10-16 06:30:58,408 - utils - INFO - 
+        SELECT DISTINCT(taa.myanimelist_id)
+        FROM `mal-data-engineering.my_anime_list.top_airing_anime` AS taa
+        LEFT JOIN `mal-data-engineering.my_anime_list.anime_info` AS ai
+        ON taa.myanimelist_id = ai.myanimelist_id
+        WHERE DATE(taa.date_pulled) = CURRENT_DATE()
+        AND ai.myanimelist_id IS NULL
+        
+2023-10-16 06:30:59,673 - utils - INFO - Anime ids not in table yet: 18
+2023-10-16 06:30:59,689 - utils - INFO - Anime Info already updated
