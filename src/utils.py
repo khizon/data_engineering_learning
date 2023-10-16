@@ -9,32 +9,49 @@ import pytz
 import os
 from datetime import datetime, timedelta
 
+import logging
+import logging.handlers
+
+# Set the timezone to Tokyo (UTC+9)
+tokyo_tz = pytz.timezone('Asia/Tokyo')
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+logger_file_handler = logging.handlers.RotatingFileHandler(
+    os.path.join(os.getcwd(), 'data', f"{datetime.now(tokyo_tz).strftime('%Y-%m-%d')}.log"),
+    maxBytes=1024 * 1024,
+    backupCount=1,
+    encoding="utf8",
+)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logger_file_handler.setFormatter(formatter)
+logger.addHandler(logger_file_handler)
+
 project_id = 'mal-data-engineering'
 dataset_id = 'my_anime_list'
 anime_info_table_r = 'anime_info'
 top_anime_table_r = 'top_airing_anime'
 anime_info_table = 'anime_info'
 top_anime_table = 'top_airing_anime'
-# Set the timezone to Tokyo (UTC+9)
-tokyo_tz = pytz.timezone('Asia/Tokyo')
+
 
 def get_keys():
-    print(f'Current Working Directory: {os.getcwd()}')
-    PATH = os.path.join(os.path.dirname(os.getcwd()), 'secrets', 'mal-data-engineering-6a8e57388653.json')
+    logger.info(f'Current Working Directory: {os.getcwd()}')
+    PATH = os.path.join(os.getcwd(), 'secrets', 'google_api_keys.json')
     try:
         os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = PATH
-        print(f'Google Application Credentials Set')
+        logger.info(f'Google Application Credentials Set')
     except:
-        print(f'Google Application Credentials NOT Set')
+        logger.info(f'Google Application Credentials NOT Set')
     try:
-        PATH = os.path.join(os.path.dirname(os.getcwd()), 'secrets', 'api_headers.json')
-        print(PATH)
+        PATH = os.path.join(os.getcwd(), 'secrets', 'api_headers.json')
+        logger.info(PATH)
         with open(PATH, 'r') as file:
             headers = json.load(file)
-        print(f'MAL Headers Loaded')
+        logger.info(f'MAL Headers Loaded')
         return headers
     except:
-        print(f'MAL headers NOT Loaded')
+        logger.info(f'MAL headers NOT Loaded')
 
 def get_top_airing_anime(headers):
     # API endpoint
@@ -66,7 +83,7 @@ def get_top_airing_anime(headers):
         return df
 
     else:
-        print("Failed to fetch data from API")
+        logger.info("Failed to fetch data from API")
         return None
 
 def get_anime_info(headers, my_anime_ids, debug=False):
@@ -96,10 +113,10 @@ def get_anime_info(headers, my_anime_ids, debug=False):
             flattened_data_df = pd.concat([flattened_data_df, flattened_data])
         
         else:
-            print(f"Failed to fetch data for myanimelist_id: {myanimelist_id}")
+            logger.info(f"Failed to fetch data for myanimelist_id: {myanimelist_id}")
 
         if debug:
-            print('Debug Mode exiting loop after 1 request')
+            logger.info('Debug Mode exiting loop after 1 request')
             break
     
     return flattened_data_df
@@ -137,10 +154,10 @@ def update_bigquery_table(project_id, dataset_id, table_id, dataframe):
     # Check if the table exists
     try:
         table = client.get_table(table_ref)
-        print('Table exists')
+        logger.info('Table exists')
     except:
         table = None
-        print('Table does not exist')
+        logger.info('Table does not exist')
     
     # Get schema from the dataframe
     schema = [bigquery.SchemaField(col, map_dtype_to_bq(dataframe[col].dtype)) for col in dataframe.columns]
@@ -177,14 +194,14 @@ def check_top_airing_anime_updated(date=None):
         FROM `{project_id}.{dataset_id}.{top_anime_table_r}`
         WHERE DATE(date_pulled) = {date}
         """
-        print(query)
+        logger.info(query)
         query_job = client.query(query)
         # Convert the result to a list
         results = [row.date_pulled for row in query_job]
         if len(results) == 0:
             return False
         else:
-            print(len(results))
+            logger.info(len(results))
             return True
     except:
         return False
@@ -193,27 +210,27 @@ def ingest_top_airing_anime():
     headers = get_keys()
 
     if ~check_top_airing_anime_updated():
-        print('Top Airing Anime not yet updated. Pulling from API')
+        logger.info('Top Airing Anime not yet updated. Pulling from API')
         top_airing = get_top_airing_anime(headers)
-        PATH = os.path.join(os.path.dirname(os.getcwd()),'data')
+        PATH = os.path.join(os.getcwd(),'data')
         os.makedirs(PATH, exist_ok=True)
         PATH = os.path.join(PATH, 'top_airing.parquet')
         top_airing.to_parquet(PATH)
     else:
-        print('Top Airing Anime already updated')
+        logger.info('Top Airing Anime already updated')
 
 def update_top_airing_anime():
     _ = get_keys()
-    PATH = os.path.join(os.path.dirname(os.getcwd()),'data', 'top_airing.parquet')
+    PATH = os.path.join(os.getcwd(),'data', 'top_airing.parquet')
     top_airing = pd.read_parquet(PATH)
     current_date = top_airing['date_pulled'].max()
     top_airing['top_airing_id'] = top_airing['date_pulled'] + '-' + top_airing['myanimelist_id'].astype(str)
     if check_top_airing_anime_updated(date=current_date) == False:
         # Current date not yet in database, upload
         update_bigquery_table(project_id, dataset_id, top_anime_table, top_airing)
-        print(f'Top Airing Anime updated')
+        logger.info(f'Top Airing Anime updated')
     else:
-        print(f'Top Airing Anime already updated')
+        logger.info(f'Top Airing Anime already updated')
 
 def check_anime_info():
     _ = get_keys()
@@ -232,16 +249,16 @@ def check_anime_info():
         """
 
         # Run the query
-        print(query)
+        logger.info(query)
         query_job = client.query(query)
 
         # Convert the result to a list
         results = [row.myanimelist_id for row in query_job]
 
-        print(f'Anime ids not in table yet: {len(results)}')
+        logger.info(f'Anime ids not in table yet: {len(results)}')
         return results
     except:
-        print(f'Anime Info was not accessed.')
+        logger.info(f'Anime Info was not accessed.')
         # If the above fails, anime_info table might not exist get all unique IDs from top_airing_anime, and query it all.
         try:
             # Define your query
@@ -250,16 +267,16 @@ def check_anime_info():
             FROM `{project_id}.{dataset_id}.{top_anime_table_r}` AS taa
             """
             # Run the query
-            print(query)
+            logger.info(query)
             query_job = client.query(query)
 
             # Convert the result to a list
             results = [row.myanimelist_id for row in query_job]
 
-            print(f'Anime ids not in table yet: {len(results)}')
+            logger.info(f'Anime ids not in table yet: {len(results)}')
             return results
         except:
-            print(f'Tables was not accessed.')
+            logger.info(f'Tables was not accessed.')
             return []
 
 def ingest_anime_info(debug=False):
@@ -276,7 +293,7 @@ def ingest_anime_info(debug=False):
         anime_info = anime_info[anime_info['data'].isna()]
         anime_info.drop(columns=['data'], errors='ignore', inplace=True)
 
-    PATH = os.path.join(os.path.dirname(os.getcwd()),'data')
+    PATH = os.path.join(os.getcwd(),'data')
     os.makedirs(PATH, exist_ok=True)
     PATH = os.path.join(PATH, 'anime_info.parquet')
     anime_info.to_parquet(PATH)
@@ -284,12 +301,12 @@ def ingest_anime_info(debug=False):
 def update_anime_info():
     _ = get_keys()
     results = check_anime_info()
-    PATH = os.path.join(os.path.dirname(os.getcwd()),'data', 'anime_info.parquet')
+    PATH = os.path.join(os.getcwd(),'data', 'anime_info.parquet')
     anime_info = pd.read_parquet(PATH)
     anime_info = anime_info.loc[anime_info['myanimelist_id'].isin(results)]
     if anime_info.shape[0] > 0:
-        print(f'Anime Info rows to upload:{anime_info.shape[0]}')
+        logger.info(f'Anime Info rows to upload:{anime_info.shape[0]}')
         update_bigquery_table(project_id, dataset_id, anime_info_table, anime_info)
     else:
-        print('Anime Info already updated')
+        logger.info('Anime Info already updated')
 

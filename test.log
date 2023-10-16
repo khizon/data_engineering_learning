@@ -1,9 +1,0 @@
-2023-10-16 04:53:36,429 - ERROR - Error occurred: [Errno 2] No such file or directory: '../secrets/keys.json'
-2023-10-16 04:58:23,709 - INFO - Contents of keys.json: {
-  "X-RapidAPI-Key": "Test Key",
-  "X-RapidAPI-Host": "Test API Host"
-}
-2023-10-16 05:03:37,965 - INFO - Contents of keys.json: {
-  "X-RapidAPI-Key": "Test Key",
-  "X-RapidAPI-Host": "Test API Host"
-}

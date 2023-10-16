@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from utils import *
 
 # Configure the logging settings
 os.makedirs('logs', exist_ok=True)
@@ -8,14 +9,7 @@ logging.basicConfig(filename='logs/test.log', level=logging.INFO, format='%(asct
 
 def main():
     try:
-        # Read the contents of secrets/keys.json
-        with open('secrets/keys.json', 'r') as file:
-            keys_data = json.load(file)
-
-        # Log the contents to data/test.log
-        logging.info('Contents of keys.json: %s', json.dumps(keys_data, indent=2))
-
-        # Your additional code logic here, if needed
+        get_keys()
 
     except Exception as e:
         # Log any exceptions
