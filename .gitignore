@@ -163,5 +163,4 @@ secrets/*
 *data*
 config/*
 plugins/*
-logs/*
 
