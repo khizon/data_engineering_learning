@@ -186,7 +186,7 @@ def update_bigquery_table(project_id, dataset_id, table_id, dataframe):
 def check_top_airing_anime_updated(date=None):
     _ = get_keys()
     if date is None:
-        date = "CURRENT_DATE('Asia/Tokyo)"
+        date = "CURRENT_DATE('Asia/Tokyo')"
     else:
         date = f"DATE('{date}')"
     try:
