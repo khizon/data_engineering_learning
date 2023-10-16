@@ -1,7 +1,9 @@
 import json
 import logging
+import os
 
 # Configure the logging settings
+os.makedirs('../data', exist_ok=True)
 logging.basicConfig(filename='../data/test.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def main():
