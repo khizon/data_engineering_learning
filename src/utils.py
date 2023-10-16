@@ -20,14 +20,15 @@ tokyo_tz = pytz.timezone('Asia/Tokyo')
 
 def get_keys():
     print(f'Current Working Directory: {os.getcwd()}')
-    PATH = os.path.join(os.getcwd(), 'secrets', 'mal-data-engineering-6a8e57388653.json')
+    PATH = os.path.join(os.path.dirname(os.getcwd()), 'secrets', 'mal-data-engineering-6a8e57388653.json')
     try:
         os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = PATH
         print(f'Google Application Credentials Set')
     except:
         print(f'Google Application Credentials NOT Set')
     try:
-        PATH = os.path.join(os.getcwd(), 'secrets', 'api_headers.json')
+        PATH = os.path.join(os.path.dirname(os.getcwd()), 'secrets', 'api_headers.json')
+        print(PATH)
         with open(PATH, 'r') as file:
             headers = json.load(file)
         print(f'MAL Headers Loaded')
@@ -68,7 +69,7 @@ def get_top_airing_anime(headers):
         print("Failed to fetch data from API")
         return None
 
-def get_anime_info(headers, my_anime_ids):
+def get_anime_info(headers, my_anime_ids, debug=False):
     # API URL for anime details
     api_url = "https://myanimelist.p.rapidapi.com/anime/"
     
@@ -96,6 +97,10 @@ def get_anime_info(headers, my_anime_ids):
         
         else:
             print(f"Failed to fetch data for myanimelist_id: {myanimelist_id}")
+
+        if debug:
+            print('Debug Mode exiting loop after 1 request')
+            break
     
     return flattened_data_df
 
@@ -190,7 +195,7 @@ def ingest_top_airing_anime():
     if ~check_top_airing_anime_updated():
         print('Top Airing Anime not yet updated. Pulling from API')
         top_airing = get_top_airing_anime(headers)
-        PATH = os.path.join(os.getcwd(), 'dags', 'data')
+        PATH = os.path.join(os.path.dirname(os.getcwd()),'data')
         os.makedirs(PATH, exist_ok=True)
         PATH = os.path.join(PATH, 'top_airing.parquet')
         top_airing.to_parquet(PATH)
@@ -199,7 +204,7 @@ def ingest_top_airing_anime():
 
 def update_top_airing_anime():
     _ = get_keys()
-    PATH = os.path.join(os.getcwd(), 'dags', 'data', 'top_airing.parquet')
+    PATH = os.path.join(os.path.dirname(os.getcwd()),'data', 'top_airing.parquet')
     top_airing = pd.read_parquet(PATH)
     current_date = top_airing['date_pulled'].max()
     top_airing['top_airing_id'] = top_airing['date_pulled'] + '-' + top_airing['myanimelist_id'].astype(str)
@@ -257,12 +262,12 @@ def check_anime_info():
             print(f'Tables was not accessed.')
             return []
 
-def ingest_anime_info():
+def ingest_anime_info(debug=False):
 
     headers = get_keys()
 
     results = check_anime_info()
-    anime_info = get_anime_info(headers, results)
+    anime_info = get_anime_info(headers, results, debug=debug)
     # Cleans columns that are lists of dicts -> just list of names
     anime_info = anime_info.applymap(lambda x: extract_names_from_list_of_dicts(x) if isinstance(x, list) else x)
     
@@ -271,7 +276,7 @@ def ingest_anime_info():
         anime_info = anime_info[anime_info['data'].isna()]
         anime_info.drop(columns=['data'], errors='ignore', inplace=True)
 
-    PATH = os.path.join(os.getcwd(), 'dags', 'data')
+    PATH = os.path.join(os.path.dirname(os.getcwd()),'data')
     os.makedirs(PATH, exist_ok=True)
     PATH = os.path.join(PATH, 'anime_info.parquet')
     anime_info.to_parquet(PATH)
@@ -279,7 +284,7 @@ def ingest_anime_info():
 def update_anime_info():
     _ = get_keys()
     results = check_anime_info()
-    PATH = os.path.join(os.getcwd(), 'dags', 'data', 'anime_info.parquet')
+    PATH = os.path.join(os.path.dirname(os.getcwd()),'data', 'anime_info.parquet')
     anime_info = pd.read_parquet(PATH)
     anime_info = anime_info.loc[anime_info['myanimelist_id'].isin(results)]
     if anime_info.shape[0] > 0:

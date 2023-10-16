@@ -5,6 +5,5 @@ seaborn==0.12.2
 tqdm==4.66.1
 ipykernel==6.25.2
 requests
-# snowflake-connector-python
 google-cloud-bigquery==3.12.0
 pandas_gbq
