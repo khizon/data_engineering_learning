@@ -15,6 +15,8 @@ anime_info_table_r = 'anime_info'
 top_anime_table_r = 'top_airing_anime'
 anime_info_table = 'anime_info'
 top_anime_table = 'top_airing_anime'
+# Set the timezone to Tokyo (UTC+9)
+tokyo_tz = pytz.timezone('Asia/Tokyo')
 
 def get_keys():
     print(f'Current Working Directory: {os.getcwd()}')
@@ -49,7 +51,7 @@ def get_top_airing_anime(headers):
         extracted_data = []
         for entry in api_data:
             anime_data = {
-                "date_pulled": datetime.now().strftime('%Y-%m-%d'),  # Record the date when data is pulled
+                "date_pulled": datetime.now(tokyo_tz).strftime('%Y-%m-%d'),  # Record the date when data is pulled
                 "myanimelist_id": entry.get("myanimelist_id"),
                 "title": entry.get("title"),
                 "rank": entry.get("rank"),
@@ -157,14 +159,18 @@ def update_bigquery_table(project_id, dataset_id, table_id, dataframe):
     # Append data to the table
     to_gbq(dataframe, f'{dataset_id}.{table_id}', project_id=project_id, if_exists='append')
 
-def check_top_airing_anime_updated():
+def check_top_airing_anime_updated(date=None):
     _ = get_keys()
+    if date is None:
+        date = "CURRENT_DATE('Asia/Tokyo)"
+    else:
+        date = f"DATE('{date}')"
     try:
         client = bigquery.Client()
         query = f"""
         SELECT date_pulled
         FROM `{project_id}.{dataset_id}.{top_anime_table_r}`
-        WHERE DATE(date_pulled) = CURRENT_DATE('Asia/Tokyo')
+        WHERE DATE(date_pulled) = {date}
         """
         print(query)
         query_job = client.query(query)
@@ -173,6 +179,7 @@ def check_top_airing_anime_updated():
         if len(results) == 0:
             return False
         else:
+            print(len(results))
             return True
     except:
         return False
@@ -192,11 +199,12 @@ def ingest_top_airing_anime():
 
 def update_top_airing_anime():
     _ = get_keys()
-
-    if ~check_top_airing_anime_updated():
+    PATH = os.path.join(os.getcwd(), 'dags', 'data', 'top_airing.parquet')
+    top_airing = pd.read_parquet(PATH)
+    current_date = top_airing['date_pulled'].max()
+    top_airing['top_airing_id'] = top_airing['date_pulled'] + '-' + top_airing['myanimelist_id'].astype(str)
+    if check_top_airing_anime_updated(date=current_date) == False:
         # Current date not yet in database, upload
-        PATH = os.path.join(os.getcwd(), 'dags', 'data', 'top_airing.parquet')
-        top_airing = pd.read_parquet(PATH)
         update_bigquery_table(project_id, dataset_id, top_anime_table, top_airing)
         print(f'Top Airing Anime updated')
     else:
@@ -228,8 +236,8 @@ def check_anime_info():
         print(f'Anime ids not in table yet: {len(results)}')
         return results
     except:
-        print(f'Tables were not accessed.')
-
+        print(f'Anime Info was not accessed.')
+        # If the above fails, anime_info table might not exist get all unique IDs from top_airing_anime, and query it all.
         try:
             # Define your query
             query = f"""
@@ -273,6 +281,10 @@ def update_anime_info():
     results = check_anime_info()
     PATH = os.path.join(os.getcwd(), 'dags', 'data', 'anime_info.parquet')
     anime_info = pd.read_parquet(PATH)
-    # anime_info = anime_info.loc[anime_info['myanimelist_id'].isin(results)]
-    update_bigquery_table(project_id, dataset_id, anime_info_table, anime_info)
+    anime_info = anime_info.loc[anime_info['myanimelist_id'].isin(results)]
+    if anime_info.shape[0] > 0:
+        print(f'Anime Info rows to upload:{anime_info.shape[0]}')
+        update_bigquery_table(project_id, dataset_id, anime_info_table, anime_info)
+    else:
+        print('Anime Info already updated')
 

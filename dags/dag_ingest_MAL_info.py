@@ -19,20 +19,20 @@ default_args = {
 
 with DAG(
     default_args=default_args,
-    dag_id="ingest_MAL_data_v0",
-    schedule_interval='@daily'
+    dag_id="ingest_MAL_info_v0",
+    schedule_interval='@weekly'
 ) as dag:
 
-    task_ingest_top_airing_anime = PythonOperator(
-        task_id = 'ingest_top_airing_anime',
-        python_callable = ingest_top_airing_anime,
+    task_ingest_anime_info = PythonOperator(
+        task_id = 'ingest_anime_info',
+        python_callable = ingest_anime_info,
         trigger_rule='all_failed',
     )
 
-    task_update_top_airing_anime = PythonOperator(
-        task_id = 'update_top_airing_anime',
-        python_callable = update_top_airing_anime,
-        # trigger_rule='all_failed',
+    task_update_anime_info = PythonOperator(
+        task_id = 'update_anime_info',
+        python_callable = update_anime_info,
+        trigger_rule='all_failed',
     )
 
-    task_ingest_top_airing_anime >> task_update_top_airing_anime
+    task_ingest_anime_info >> task_update_anime_info
