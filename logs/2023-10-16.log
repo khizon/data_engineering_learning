@@ -6,3 +6,11 @@
 2023-10-16 05:36:50,754 - utils - INFO - Google Application Credentials Set
 2023-10-16 05:36:50,754 - utils - INFO - /home/runner/work/data_engineering_learning/data_engineering_learning/secrets/api_headers.json
 2023-10-16 05:36:50,754 - utils - INFO - MAL headers NOT Loaded
+2023-10-16 05:41:08,028 - utils - INFO - Current Working Directory: /home/runner/work/data_engineering_learning/data_engineering_learning
+2023-10-16 05:41:08,028 - utils - INFO - Contents of keys.json: {
+  "X-RapidAPI-Key": "Test Key",
+  "X-RapidAPI-Host": "Test API Host"
+}
+2023-10-16 05:41:08,028 - utils - INFO - Google Application Credentials Set
+2023-10-16 05:41:08,028 - utils - INFO - /home/runner/work/data_engineering_learning/data_engineering_learning/secrets/api_headers.json
+2023-10-16 05:41:08,028 - utils - INFO - MAL headers NOT Loaded
