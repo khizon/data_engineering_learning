@@ -97,3 +97,26 @@
         AND ai.myanimelist_id IS NULL
         
 2023-10-16 05:51:30,171 - utils - INFO - Anime ids not in table yet: 18
+2023-10-16 06:14:35,786 - utils - INFO - Current Working Directory: /home/runner/work/data_engineering_learning/data_engineering_learning
+2023-10-16 06:14:35,786 - utils - INFO - Google Application Credentials Set
+2023-10-16 06:14:35,786 - utils - INFO - /home/runner/work/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-16 06:14:35,786 - utils - INFO - MAL Headers Loaded
+2023-10-16 06:14:35,787 - utils - INFO - Current Working Directory: /home/runner/work/data_engineering_learning/data_engineering_learning
+2023-10-16 06:14:35,787 - utils - INFO - Google Application Credentials Set
+2023-10-16 06:14:35,787 - utils - INFO - /home/runner/work/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-16 06:14:35,787 - utils - INFO - MAL Headers Loaded
+2023-10-16 06:14:35,787 - utils - INFO - Current Working Directory: /home/runner/work/data_engineering_learning/data_engineering_learning
+2023-10-16 06:14:35,787 - utils - INFO - Google Application Credentials Set
+2023-10-16 06:14:35,787 - utils - INFO - /home/runner/work/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-16 06:14:35,787 - utils - INFO - MAL Headers Loaded
+2023-10-16 06:14:35,791 - utils - INFO - 
+        SELECT date_pulled
+        FROM `mal-data-engineering.my_anime_list.top_airing_anime`
+        WHERE DATE(date_pulled) = CURRENT_DATE('Asia/Tokyo')
+        
+2023-10-16 06:14:36,982 - utils - INFO - Results: 50
+2023-10-16 06:14:36,982 - utils - INFO - Top Airing Anime already updated
+2023-10-16 06:14:36,982 - utils - INFO - Current Working Directory: /home/runner/work/data_engineering_learning/data_engineering_learning
+2023-10-16 06:14:36,982 - utils - INFO - Google Application Credentials Set
+2023-10-16 06:14:36,983 - utils - INFO - /home/runner/work/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-16 06:14:36,983 - utils - INFO - MAL Headers Loaded
