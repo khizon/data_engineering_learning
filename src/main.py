@@ -6,6 +6,10 @@ from utils import *
 def main():
     try:
         get_keys()
+        ingest_top_airing_anime()
+        update_top_airing_anime()
+        # ingest_top_airing_anime()
+        # update_anime_info()
 
     except Exception as e:
         # Log any exceptions
