@@ -203,7 +203,7 @@ def check_top_airing_anime_updated(date=None):
         if len(results) == 0:
             return False
         else:
-            logger.info(len(results))
+            logger.info(f'Results: {len(results)}')
             return True
     except:
         return False
@@ -211,7 +211,7 @@ def check_top_airing_anime_updated(date=None):
 def ingest_top_airing_anime():
     headers = get_keys()
 
-    if ~check_top_airing_anime_updated():
+    if check_top_airing_anime_updated() == False:
         logger.info('Top Airing Anime not yet updated. Pulling from API')
         top_airing = get_top_airing_anime(headers)
         PATH = os.path.join(os.getcwd(),'data')

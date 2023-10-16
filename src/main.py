@@ -8,7 +8,7 @@ def main():
         get_keys()
         ingest_top_airing_anime()
         update_top_airing_anime()
-        ingest_top_airing_anime()
+        ingest_anime_info(debug=True)
         update_anime_info()
 
     except Exception as e:
