@@ -9,7 +9,7 @@ logging.basicConfig(filename='test.log', level=logging.INFO, format='%(asctime)s
 def main():
     try:
         # Read the contents of secrets/keys.json
-        with open('../secrets/keys.json', 'r') as file:
+        with open('keys.json', 'r') as file:
             keys_data = json.load(file)
 
         # Log the contents to data/test.log
