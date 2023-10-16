@@ -29,11 +29,12 @@ jobs:
 
       - name: Decode Base64
         run: |
-          # mkdir -p secrets
+          mkdir -p secrets
           current_directory=$(pwd)
           echo "Current working directory is: $current_directory"
-          # echo "${{ secrets.API_HEADERS }}" | base64 --decode > headers.json
-          # echo "${{ secrets.GOOGLEAPI_KEYS }}" | base64 --decode > google_api_keys.json
+          echo "${{ secrets.API_HEADERS }}" | base64 --decode > secrets/headers.json
+          echo "${{ secrets.GOOGLEAPI_KEYS }}" | base64 --decode > secrets/google_api_keys.json
+          echo "${{ secrets.KEYS }}" | base64 --decode > secrets/keys.json
           
       - name: execute py script # run main.py
         run: python src/main.py

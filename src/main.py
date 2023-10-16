@@ -3,13 +3,13 @@ import logging
 import os
 
 # Configure the logging settings
-os.makedirs('../logs', exist_ok=True)
-logging.basicConfig(filename='test.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+os.makedirs('logs', exist_ok=True)
+logging.basicConfig(filename='logs/test.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def main():
     try:
         # Read the contents of secrets/keys.json
-        with open('keys.json', 'r') as file:
+        with open('secrets/keys.json', 'r') as file:
             keys_data = json.load(file)
 
         # Log the contents to data/test.log
