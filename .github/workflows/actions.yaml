@@ -1,8 +1,9 @@
-name: ingest top airing anime
+name: MAL data ingestion
 
 on:
   schedule:
-    - cron: '0 15 * * *' # 15:00 UTC is midnight UTC+9
+    - cron: '0 15 * * *' # runs at 00:00 UTC+9 everyday
+    - cron: '0 15 * * 7' # runs at 00:30 UTC+9 every Sunday
 
 # on:
 #   push:
@@ -10,7 +11,7 @@ on:
 #       - main
 
 jobs:
-  build:
+  ingest_top_airing_anime:
     runs-on: ubuntu-latest
     steps:
 
@@ -51,19 +52,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: main 
 
-name: ingest anime information
-
-on:
-  schedule:
-    - cron: '0 16 * * *' # 15:00 UTC is midnight UTC+9
-
-# on:
-#   push:
-#     branches:
-#       - main
-
-jobs:
-  build:
+  ingest_anime_information:
     runs-on: ubuntu-latest
     steps:
 
