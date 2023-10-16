@@ -91,36 +91,36 @@ def get_top_airing_anime(headers):
 def get_anime_info(headers, my_anime_ids, debug=False):
     # API URL for anime details
     api_url = "https://myanimelist.p.rapidapi.com/anime/"
-    
+
     # New DataFrame to store flattened data
     flattened_data_df = pd.DataFrame()
-    
+
     # Iterate through my_anime_ids
     for myanimelist_id in tqdm(my_anime_ids):
         # Make API request for detailed anime information
         response = requests.get(f'{api_url}{myanimelist_id}', headers=headers)
-        
+
         # Check if the request was successful
         if response.status_code == 200:
             # Parse JSON response
             api_data = response.json()
-            
+
             # Flatten the nested JSON structure
             flattened_data = pd.json_normalize(api_data)
-            
+
             # Add 'myanimelist_id' as an additional column
             flattened_data['myanimelist_id'] = myanimelist_id
-            
+
             # Append flattened data to the existing DataFrame
             flattened_data_df = pd.concat([flattened_data_df, flattened_data])
-        
+
         else:
             logger.info(f"Failed to fetch data for myanimelist_id: {myanimelist_id}")
 
         if debug:
             logger.info('Debug Mode exiting loop after 1 request')
             break
-    
+
     return flattened_data_df
 
 def extract_names_from_list_of_dicts(lst):
@@ -149,10 +149,10 @@ def sanitize_column_name(col_name):
 def update_bigquery_table(project_id, dataset_id, table_id, dataframe):
     # Ensure that dataframe column names are valid
     dataframe.columns = [sanitize_column_name(col) for col in dataframe.columns]
-    
+
     client = bigquery.Client(project=project_id)
     table_ref = client.dataset(dataset_id).table(table_id)
-    
+
     # Check if the table exists
     try:
         table = client.get_table(table_ref)
@@ -160,10 +160,10 @@ def update_bigquery_table(project_id, dataset_id, table_id, dataframe):
     except:
         table = None
         logger.info('Table does not exist')
-    
+
     # Get schema from the dataframe
     schema = [bigquery.SchemaField(col, map_dtype_to_bq(dataframe[col].dtype)) for col in dataframe.columns]
-    
+
     if table:
         # Identify missing columns in the existing schema
         existing_columns = set(field.name for field in table.schema)
@@ -179,7 +179,7 @@ def update_bigquery_table(project_id, dataset_id, table_id, dataframe):
         table_ref = client.dataset(dataset_id).table(table_id)
         table = bigquery.Table(table_ref, schema=schema)
         table = client.create_table(table)  # API request
-    
+
     # Append data to the table
     to_gbq(dataframe, f'{dataset_id}.{table_id}', project_id=project_id, if_exists='append')
 
@@ -289,7 +289,7 @@ def ingest_anime_info(debug=False):
     anime_info = get_anime_info(headers, results, debug=debug)
     # Cleans columns that are lists of dicts -> just list of names
     anime_info = anime_info.applymap(lambda x: extract_names_from_list_of_dicts(x) if isinstance(x, list) else x)
-    
+
     # If this column is populated that means the anime information is not yet available
     if 'data' in anime_info.columns:
         anime_info = anime_info[anime_info['data'].isna()]
@@ -311,4 +311,3 @@ def update_anime_info():
         update_bigquery_table(project_id, dataset_id, anime_info_table, anime_info)
     else:
         logger.info('Anime Info already updated')
-
