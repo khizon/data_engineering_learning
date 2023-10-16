@@ -1,0 +1,33 @@
+2023-10-16 05:46:37,582 - utils - INFO - Current Working Directory: /home/runner/work/data_engineering_learning/data_engineering_learning
+2023-10-16 05:46:37,582 - utils - INFO - Google Application Credentials Set
+2023-10-16 05:46:37,582 - utils - INFO - /home/runner/work/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-16 05:46:37,582 - utils - INFO - MAL Headers Loaded
+2023-10-16 05:46:37,582 - utils - INFO - Current Working Directory: /home/runner/work/data_engineering_learning/data_engineering_learning
+2023-10-16 05:46:37,583 - utils - INFO - Google Application Credentials Set
+2023-10-16 05:46:37,583 - utils - INFO - /home/runner/work/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-16 05:46:37,583 - utils - INFO - MAL Headers Loaded
+2023-10-16 05:46:37,583 - utils - INFO - Current Working Directory: /home/runner/work/data_engineering_learning/data_engineering_learning
+2023-10-16 05:46:37,583 - utils - INFO - Google Application Credentials Set
+2023-10-16 05:46:37,583 - utils - INFO - /home/runner/work/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-16 05:46:37,583 - utils - INFO - MAL Headers Loaded
+2023-10-16 05:46:37,589 - utils - INFO - 
+        SELECT date_pulled
+        FROM `mal-data-engineering.my_anime_list.top_airing_anime`
+        WHERE DATE(date_pulled) = CURRENT_DATE('Asia/Tokyo)
+        
+2023-10-16 05:46:38,189 - utils - INFO - Top Airing Anime not yet updated. Pulling from API
+2023-10-16 05:46:40,046 - utils - INFO - Current Working Directory: /home/runner/work/data_engineering_learning/data_engineering_learning
+2023-10-16 05:46:40,046 - utils - INFO - Google Application Credentials Set
+2023-10-16 05:46:40,046 - utils - INFO - /home/runner/work/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-16 05:46:40,046 - utils - INFO - MAL Headers Loaded
+2023-10-16 05:46:40,065 - utils - INFO - Current Working Directory: /home/runner/work/data_engineering_learning/data_engineering_learning
+2023-10-16 05:46:40,065 - utils - INFO - Google Application Credentials Set
+2023-10-16 05:46:40,065 - utils - INFO - /home/runner/work/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-16 05:46:40,065 - utils - INFO - MAL Headers Loaded
+2023-10-16 05:46:40,069 - utils - INFO - 
+        SELECT date_pulled
+        FROM `mal-data-engineering.my_anime_list.top_airing_anime`
+        WHERE DATE(date_pulled) = DATE('2023-10-16')
+        
+2023-10-16 05:46:41,706 - utils - INFO - 50
+2023-10-16 05:46:41,707 - utils - INFO - Top Airing Anime already updated
