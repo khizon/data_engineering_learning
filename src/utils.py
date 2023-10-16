@@ -38,13 +38,7 @@ top_anime_table = 'top_airing_anime'
 
 def get_keys():
     logger.info(f'Current Working Directory: {os.getcwd()}')
-    # Read the contents of secrets/keys.json
-    with open(os.path.join(os.getcwd(), 'secrets', 'keys.json'), 'r') as file:
-        keys_data = json.load(file)
 
-    # Log the contents to data/test.log
-    logger.info(f'Contents of keys.json: {json.dumps(keys_data, indent=2)}')
-    
     PATH = os.path.join(os.getcwd(), 'secrets', 'google_api_keys.json')
     try:
         os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = PATH
@@ -52,7 +46,7 @@ def get_keys():
     except:
         logger.info(f'Google Application Credentials NOT Set')
     try:
-        PATH = os.path.join(os.getcwd(), 'secrets', 'api_headers.json')
+        PATH = os.path.join(os.getcwd(), 'secrets', 'headers.json')
         logger.info(PATH)
         with open(PATH, 'r') as file:
             headers = json.load(file)
