@@ -1,0 +1,15 @@
+2023-10-16 06:28:27,138 - utils - INFO - Getting Keys. Current Working Directory: /home/runner/work/data_engineering_learning/data_engineering_learning
+2023-10-16 06:28:27,138 - utils - INFO - Google Application Credentials Set
+2023-10-16 06:28:27,138 - utils - INFO - /home/runner/work/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-16 06:28:27,138 - utils - INFO - MAL Headers Loaded
+2023-10-16 06:28:27,138 - utils - INFO - Getting Keys. Current Working Directory: /home/runner/work/data_engineering_learning/data_engineering_learning
+2023-10-16 06:28:27,138 - utils - INFO - Google Application Credentials Set
+2023-10-16 06:28:27,138 - utils - INFO - /home/runner/work/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-16 06:28:27,139 - utils - INFO - MAL Headers Loaded
+2023-10-16 06:28:27,143 - utils - INFO - 
+        SELECT date_pulled
+        FROM `mal-data-engineering.my_anime_list.top_airing_anime`
+        WHERE DATE(date_pulled) = CURRENT_DATE('Asia/Tokyo')
+        
+2023-10-16 06:28:28,374 - utils - INFO - Results: 50
+2023-10-16 06:28:28,374 - utils - INFO - Top Airing Anime already updated
