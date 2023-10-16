@@ -37,7 +37,7 @@ top_anime_table = 'top_airing_anime'
 
 
 def get_keys():
-    logger.info(f'Current Working Directory: {os.getcwd()}')
+    logger.info(f'Getting Keys. Current Working Directory: {os.getcwd()}')
 
     PATH = os.path.join(os.getcwd(), 'secrets', 'google_api_keys.json')
     try:

@@ -5,11 +5,12 @@ from utils import *
 
 def main():
     try:
-        get_keys()
         ingest_top_airing_anime()
-        update_top_airing_anime()
+        if os.path.exists(os.getcwd(), 'data', 'top_airing.parquet'):
+            update_top_airing_anime()
         ingest_anime_info(debug=True)
-        update_anime_info()
+        if os.path.exists(os.getcwd(), 'data', 'anime_info.parquet'):
+            update_anime_info()
 
     except Exception as e:
         # Log any exceptions
