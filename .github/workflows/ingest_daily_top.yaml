@@ -40,9 +40,9 @@ jobs:
 
         - name: commit files
           run: |
-            cd $GITHUB_WORKSPACE  # Ensure you are in the correct directory
-            git config --local user.email "action@github.com"
-            git config --local user.name "GitHub Action"
+            # cd $GITHUB_WORKSPACE  # Ensure you are in the correct directory
+            git config user.email "action@github.com"
+            git config user.name "GitHub Action"
             git add -A
             git diff-index --quiet HEAD || (git commit -a -m "updated logs" --allow-empty)
 
