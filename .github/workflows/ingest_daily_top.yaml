@@ -40,7 +40,7 @@ jobs:
 
         - name: commit files
           run: |
-
+            cd $GITHUB_WORKSPACE
             git config user.email "action@github.com"
             git config user.name "GitHub Action"
             git add -A
