@@ -1,0 +1,47 @@
+name: MAL daily top 10 ingestion
+
+on:
+  schedule:
+    - cron: '15 15 * * 0' # runs at 00:15 UTC+9 every Sunday
+jobs:
+  ingest_anime_information:
+      runs-on: ubuntu-latest
+      container: kielhizon/data_engineering:latest
+      steps:
+
+        - name: checkout repo content
+          uses: actions/checkout@v2 # checkout the repository content to github runner
+
+        # - name: setup python
+        #   uses: actions/setup-python@v4
+        #   with:
+        #     python-version: '3.11' # install the python version needed
+
+        # - name: install python packages
+        #   run: |
+        #     python -m pip install --upgrade pip
+        #     pip install --no-cache-dir -r requirements.txt
+
+        - name: Decode Base64
+          run: |
+            mkdir -p secrets
+            current_directory=$(pwd)
+            echo "Current working directory is: $current_directory"
+            echo "${{ secrets.API_HEADERS }}" | base64 --decode > secrets/headers.json
+            echo "${{ secrets.GOOGLEAPI_KEYS }}" | base64 --decode > secrets/google_api_keys.json
+
+        - name: execute py script # run main.py
+          run: python src/top10_anime.py
+
+        - name: commit files
+          run: |
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add -A
+            git diff-index --quiet HEAD || (git commit -a -m "updated logs" --allow-empty)
+
+        - name: push changes
+          uses: ad-m/github-push-action@v0.6.0
+          with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            branch: main

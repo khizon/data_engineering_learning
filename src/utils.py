@@ -34,6 +34,7 @@ anime_info_table_r = 'anime_info'
 top_anime_table_r = 'top_airing_anime'
 anime_info_table = 'anime_info'
 top_anime_table = 'top_airing_anime'
+daily_top_10_table = 'daily_top_10'
 
 
 def get_keys():
@@ -183,17 +184,19 @@ def update_bigquery_table(project_id, dataset_id, table_id, dataframe):
     # Append data to the table
     to_gbq(dataframe, f'{dataset_id}.{table_id}', project_id=project_id, if_exists='append')
 
-def check_top_airing_anime_updated(date=None):
+def check_top_airing_anime_updated(date=None, table=None):
     _ = get_keys()
     if date is None:
         date = "CURRENT_DATE('Asia/Tokyo')"
     else:
         date = f"DATE('{date}')"
+    if table is None:
+        table = top_anime_table_r
     try:
         client = bigquery.Client()
         query = f"""
         SELECT date_pulled
-        FROM `{project_id}.{dataset_id}.{top_anime_table_r}`
+        FROM `{project_id}.{dataset_id}.{table}`
         WHERE DATE(date_pulled) = {date}
         """
         logger.info(query)
@@ -311,3 +314,52 @@ def update_anime_info():
         update_bigquery_table(project_id, dataset_id, anime_info_table, anime_info)
     else:
         logger.info('Anime Info already updated')
+
+def update_top10_anime():
+    _ = get_keys()
+    if check_top_airing_anime_updated(table=daily_top_10_table) == False:
+        client = bigquery.Client()
+        query = f"""
+        WITH ranked_anime AS (
+            SELECT
+                tw.date_pulled,
+                tw.title,
+                tw.rank,
+                tw.score,
+                (tw.rank - lw.rank) as rank_change,
+                (tw.score - lw.score) as score_change,
+                ROW_NUMBER() OVER (PARTITION BY tw.date_pulled ORDER BY tw.rank) AS rank_within_date
+            FROM
+                `mal-data-engineering.my_anime_list.top_airing_anime` AS tw
+            LEFT JOIN
+                `mal-data-engineering.my_anime_list.top_airing_anime` AS lw
+            ON
+                tw.myanimelist_id = lw.myanimelist_id
+            WHERE
+                DATE(tw.date_pulled) = CURRENT_DATE('Asia/Tokyo')
+                AND
+                DATE(lw.date_pulled) = DATE_ADD(DATE(tw.date_pulled), INTERVAL -1 DAY)
+            )
+
+            SELECT
+            date_pulled,
+            title,
+            rank,
+            score,
+            rank_change,
+            score_change
+            FROM
+            ranked_anime
+            WHERE
+            rank_within_date <= 10
+            ORDER BY
+            date_pulled DESC,
+            rank_within_date;
+        """
+        logger.info(query)
+        query_job = client.query(query)
+        df = query_job.to_dataframe()
+        update_bigquery_table(project_id, dataset_id, daily_top_10_table, df)
+        logger.info('Daily Top 10 table updated')
+    else:
+        logger.info('Daily Top 10 already updated')
