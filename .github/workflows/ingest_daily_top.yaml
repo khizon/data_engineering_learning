@@ -1,8 +1,13 @@
 name: MAL daily top 10 ingestion
 
+# on:
+#   schedule:
+#     - cron: '15 15 * * 0' # runs at 00:15 UTC+9 every Sunday
 on:
-  schedule:
-    - cron: '15 15 * * 0' # runs at 00:15 UTC+9 every Sunday
+  push:
+    branches:
+      - main
+
 jobs:
   ingest_anime_information:
       runs-on: ubuntu-latest
