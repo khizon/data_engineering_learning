@@ -27,3 +27,55 @@
         
 2023-10-17 15:11:21,622 - utils - INFO - Table exists
 2023-10-17 15:11:25,412 - utils - INFO - Top Airing Anime updated
+2023-10-17 20:36:32,791 - utils - INFO - Getting Keys. Current Working Directory: /__w/data_engineering_learning/data_engineering_learning
+2023-10-17 20:36:32,791 - utils - INFO - Google Application Credentials Set
+2023-10-17 20:36:32,791 - utils - INFO - /__w/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-17 20:36:32,792 - utils - INFO - MAL Headers Loaded
+2023-10-17 20:36:32,792 - utils - INFO - Getting Keys. Current Working Directory: /__w/data_engineering_learning/data_engineering_learning
+2023-10-17 20:36:32,792 - utils - INFO - Google Application Credentials Set
+2023-10-17 20:36:32,792 - utils - INFO - /__w/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-17 20:36:32,792 - utils - INFO - MAL Headers Loaded
+2023-10-17 20:36:32,797 - utils - INFO - 
+        SELECT date_pulled
+        FROM `mal-data-engineering.my_anime_list.daily_top_10`
+        WHERE DATE(date_pulled) = CURRENT_DATE('Asia/Tokyo')
+        
+2023-10-17 20:36:34,493 - utils - INFO - 
+        WITH ranked_anime AS (
+            SELECT
+                tw.date_pulled,
+                tw.title,
+                tw.rank,
+                tw.score,
+                (tw.rank - lw.rank) as rank_change,
+                (tw.score - lw.score) as score_change,
+                ROW_NUMBER() OVER (PARTITION BY tw.date_pulled ORDER BY tw.rank) AS rank_within_date
+            FROM
+                `mal-data-engineering.my_anime_list.top_airing_anime` AS tw
+            LEFT JOIN
+                `mal-data-engineering.my_anime_list.top_airing_anime` AS lw
+            ON
+                tw.myanimelist_id = lw.myanimelist_id
+            WHERE
+                DATE(tw.date_pulled) = CURRENT_DATE('Asia/Tokyo')
+                AND
+                DATE(lw.date_pulled) = DATE_ADD(DATE(tw.date_pulled), INTERVAL -1 DAY)
+            )
+
+            SELECT
+            date_pulled,
+            title,
+            rank,
+            score,
+            rank_change,
+            score_change
+            FROM
+            ranked_anime
+            WHERE
+            rank_within_date <= 10
+            ORDER BY
+            date_pulled DESC,
+            rank_within_date;
+        
+2023-10-17 20:36:37,304 - utils - INFO - Table exists
+2023-10-17 20:36:42,231 - utils - INFO - Daily Top 10 table updated
