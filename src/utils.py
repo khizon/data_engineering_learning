@@ -323,6 +323,7 @@ def update_top10_anime():
         WITH ranked_anime AS (
             SELECT
                 tw.date_pulled,
+                tw.myanimelist_id,
                 tw.title,
                 tw.rank,
                 tw.score,
@@ -343,6 +344,7 @@ def update_top10_anime():
 
             SELECT
             date_pulled,
+            myanimelist_id,
             title,
             rank,
             score,
