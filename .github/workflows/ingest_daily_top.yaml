@@ -40,6 +40,7 @@ jobs:
 
         - name: commit files
           run: |
+            git config --global --add safe.directory /__w/data_engineering_learning/data_engineering_learning
             git config --global user.email "action@github.com"
             git config --global user.name "GitHub Action"
             git add -A
