@@ -1,0 +1,29 @@
+2023-10-24 15:11:26,668 - utils - INFO - Getting Keys. Current Working Directory: /__w/data_engineering_learning/data_engineering_learning
+2023-10-24 15:11:26,668 - utils - INFO - Google Application Credentials Set
+2023-10-24 15:11:26,668 - utils - INFO - /__w/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-24 15:11:26,668 - utils - INFO - MAL Headers Loaded
+2023-10-24 15:11:26,668 - utils - INFO - Getting Keys. Current Working Directory: /__w/data_engineering_learning/data_engineering_learning
+2023-10-24 15:11:26,668 - utils - INFO - Google Application Credentials Set
+2023-10-24 15:11:26,668 - utils - INFO - /__w/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-24 15:11:26,668 - utils - INFO - MAL Headers Loaded
+2023-10-24 15:11:26,674 - utils - INFO - 
+        SELECT date_pulled
+        FROM `mal-data-engineering.my_anime_list.top_airing_anime`
+        WHERE DATE(date_pulled) = CURRENT_DATE('Asia/Tokyo')
+        
+2023-10-24 15:11:28,311 - utils - INFO - Top Airing Anime not yet updated. Pulling from API
+2023-10-24 15:11:31,296 - utils - INFO - Getting Keys. Current Working Directory: /__w/data_engineering_learning/data_engineering_learning
+2023-10-24 15:11:31,296 - utils - INFO - Google Application Credentials Set
+2023-10-24 15:11:31,296 - utils - INFO - /__w/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-24 15:11:31,296 - utils - INFO - MAL Headers Loaded
+2023-10-24 15:11:31,312 - utils - INFO - Getting Keys. Current Working Directory: /__w/data_engineering_learning/data_engineering_learning
+2023-10-24 15:11:31,312 - utils - INFO - Google Application Credentials Set
+2023-10-24 15:11:31,313 - utils - INFO - /__w/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-24 15:11:31,313 - utils - INFO - MAL Headers Loaded
+2023-10-24 15:11:31,316 - utils - INFO - 
+        SELECT date_pulled
+        FROM `mal-data-engineering.my_anime_list.top_airing_anime`
+        WHERE DATE(date_pulled) = DATE('2023-10-25')
+        
+2023-10-24 15:11:33,314 - utils - INFO - Table exists
+2023-10-24 15:11:37,027 - utils - INFO - Top Airing Anime updated
