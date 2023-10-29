@@ -34,7 +34,7 @@ anime_info_table_r = 'anime_info'
 top_anime_table_r = 'top_airing_anime'
 anime_info_table = 'anime_info'
 top_anime_table = 'top_airing_anime'
-daily_top_10_table = 'daily_top_10'
+weekly_top_10_table = 'weekly_top_10'
 
 
 def get_keys():
@@ -317,7 +317,7 @@ def update_anime_info():
 
 def update_top10_anime():
     _ = get_keys()
-    if check_top_airing_anime_updated(table=daily_top_10_table) == False:
+    if check_top_airing_anime_updated(table=weekly_top_10_table) == False:
         client = bigquery.Client()
         query = f"""
         WITH ranked_anime AS (
@@ -331,15 +331,15 @@ def update_top10_anime():
                 (tw.score - lw.score) as score_change,
                 ROW_NUMBER() OVER (PARTITION BY tw.date_pulled ORDER BY tw.rank) AS rank_within_date
             FROM
-                `mal-data-engineering.my_anime_list.top_airing_anime` AS tw
+                (SELECT * FROM `mal-data-engineering.my_anime_list.top_airing_anime`
+                  WHERE DATE(date_pulled) = CURRENT_DATE('Asia/Tokyo')
+                ) AS tw
             LEFT JOIN
-                `mal-data-engineering.my_anime_list.top_airing_anime` AS lw
+                (SELECT * FROM `mal-data-engineering.my_anime_list.top_airing_anime`
+                  WHERE DATE(date_pulled) = DATE_ADD(CURRENT_DATE('Asia/Tokyo'), INTERVAL -7 DAY)
+                ) AS lw
             ON
                 tw.myanimelist_id = lw.myanimelist_id
-            WHERE
-                DATE(tw.date_pulled) = CURRENT_DATE('Asia/Tokyo')
-                AND
-                DATE(lw.date_pulled) = DATE_ADD(DATE(tw.date_pulled), INTERVAL -1 DAY)
             )
 
             SELECT
@@ -355,13 +355,14 @@ def update_top10_anime():
             WHERE
             rank_within_date <= 10
             ORDER BY
-            date_pulled DESC,
-            rank_within_date;
+            rank_within_date,
+            date_pulled DESC
+            ;
         """
         logger.info(query)
         query_job = client.query(query)
         df = query_job.to_dataframe()
-        update_bigquery_table(project_id, dataset_id, daily_top_10_table, df)
-        logger.info('Daily Top 10 table updated')
+        update_bigquery_table(project_id, dataset_id, weekly_top_10_table, df)
+        logger.info('Weekly Top 10 table updated')
     else:
-        logger.info('Daily Top 10 already updated')
+        logger.info('Weekly Top 10 already updated')
