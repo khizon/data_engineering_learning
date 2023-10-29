@@ -1,0 +1,83 @@
+2023-10-27 15:10:26,480 - utils - INFO - Getting Keys. Current Working Directory: /__w/data_engineering_learning/data_engineering_learning
+2023-10-27 15:10:26,480 - utils - INFO - Google Application Credentials Set
+2023-10-27 15:10:26,481 - utils - INFO - /__w/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-27 15:10:26,481 - utils - INFO - MAL Headers Loaded
+2023-10-27 15:10:26,481 - utils - INFO - Getting Keys. Current Working Directory: /__w/data_engineering_learning/data_engineering_learning
+2023-10-27 15:10:26,481 - utils - INFO - Google Application Credentials Set
+2023-10-27 15:10:26,481 - utils - INFO - /__w/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-27 15:10:26,481 - utils - INFO - MAL Headers Loaded
+2023-10-27 15:10:26,485 - utils - INFO - 
+        SELECT date_pulled
+        FROM `mal-data-engineering.my_anime_list.top_airing_anime`
+        WHERE DATE(date_pulled) = CURRENT_DATE('Asia/Tokyo')
+        
+2023-10-27 15:10:28,189 - utils - INFO - Top Airing Anime not yet updated. Pulling from API
+2023-10-27 15:10:30,431 - utils - INFO - Getting Keys. Current Working Directory: /__w/data_engineering_learning/data_engineering_learning
+2023-10-27 15:10:30,431 - utils - INFO - Google Application Credentials Set
+2023-10-27 15:10:30,432 - utils - INFO - /__w/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-27 15:10:30,432 - utils - INFO - MAL Headers Loaded
+2023-10-27 15:10:30,444 - utils - INFO - Getting Keys. Current Working Directory: /__w/data_engineering_learning/data_engineering_learning
+2023-10-27 15:10:30,444 - utils - INFO - Google Application Credentials Set
+2023-10-27 15:10:30,444 - utils - INFO - /__w/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-27 15:10:30,444 - utils - INFO - MAL Headers Loaded
+2023-10-27 15:10:30,447 - utils - INFO - 
+        SELECT date_pulled
+        FROM `mal-data-engineering.my_anime_list.top_airing_anime`
+        WHERE DATE(date_pulled) = DATE('2023-10-28')
+        
+2023-10-27 15:10:32,076 - utils - INFO - Table exists
+2023-10-27 15:10:35,554 - utils - INFO - Top Airing Anime updated
+2023-10-27 15:21:29,378 - utils - INFO - Getting Keys. Current Working Directory: /__w/data_engineering_learning/data_engineering_learning
+2023-10-27 15:21:29,378 - utils - INFO - Google Application Credentials Set
+2023-10-27 15:21:29,378 - utils - INFO - /__w/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-27 15:21:29,378 - utils - INFO - MAL Headers Loaded
+2023-10-27 15:21:29,378 - utils - INFO - Getting Keys. Current Working Directory: /__w/data_engineering_learning/data_engineering_learning
+2023-10-27 15:21:29,379 - utils - INFO - Google Application Credentials Set
+2023-10-27 15:21:29,379 - utils - INFO - /__w/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2023-10-27 15:21:29,379 - utils - INFO - MAL Headers Loaded
+2023-10-27 15:21:29,383 - utils - INFO - 
+        SELECT date_pulled
+        FROM `mal-data-engineering.my_anime_list.daily_top_10`
+        WHERE DATE(date_pulled) = CURRENT_DATE('Asia/Tokyo')
+        
+2023-10-27 15:21:31,048 - utils - INFO - 
+        WITH ranked_anime AS (
+            SELECT
+                tw.date_pulled,
+                tw.myanimelist_id,
+                tw.title,
+                tw.rank,
+                tw.score,
+                (tw.rank - lw.rank) as rank_change,
+                (tw.score - lw.score) as score_change,
+                ROW_NUMBER() OVER (PARTITION BY tw.date_pulled ORDER BY tw.rank) AS rank_within_date
+            FROM
+                `mal-data-engineering.my_anime_list.top_airing_anime` AS tw
+            LEFT JOIN
+                `mal-data-engineering.my_anime_list.top_airing_anime` AS lw
+            ON
+                tw.myanimelist_id = lw.myanimelist_id
+            WHERE
+                DATE(tw.date_pulled) = CURRENT_DATE('Asia/Tokyo')
+                AND
+                DATE(lw.date_pulled) = DATE_ADD(DATE(tw.date_pulled), INTERVAL -1 DAY)
+            )
+
+            SELECT
+            date_pulled,
+            myanimelist_id,
+            title,
+            rank,
+            score,
+            rank_change,
+            score_change
+            FROM
+            ranked_anime
+            WHERE
+            rank_within_date <= 10
+            ORDER BY
+            date_pulled DESC,
+            rank_within_date;
+        
+2023-10-27 15:21:34,561 - utils - INFO - Table exists
+2023-10-27 15:21:38,816 - utils - INFO - Daily Top 10 table updated
