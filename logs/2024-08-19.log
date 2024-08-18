@@ -27,3 +27,58 @@
         
 2024-08-18 15:11:17,763 - utils - INFO - Table exists
 2024-08-18 15:11:22,638 - utils - INFO - Top Airing Anime updated
+2024-08-18 15:25:42,673 - utils - INFO - Getting Keys. Current Working Directory: /__w/data_engineering_learning/data_engineering_learning
+2024-08-18 15:25:42,673 - utils - INFO - Google Application Credentials Set
+2024-08-18 15:25:42,673 - utils - INFO - /__w/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2024-08-18 15:25:42,673 - utils - INFO - MAL Headers Loaded
+2024-08-18 15:25:42,673 - utils - INFO - Getting Keys. Current Working Directory: /__w/data_engineering_learning/data_engineering_learning
+2024-08-18 15:25:42,673 - utils - INFO - Google Application Credentials Set
+2024-08-18 15:25:42,673 - utils - INFO - /__w/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2024-08-18 15:25:42,673 - utils - INFO - MAL Headers Loaded
+2024-08-18 15:25:42,677 - utils - INFO - 
+        SELECT date_pulled
+        FROM `mal-data-engineering.my_anime_list.weekly_top_10`
+        WHERE DATE(date_pulled) = CURRENT_DATE('Asia/Tokyo')
+        
+2024-08-18 15:25:43,884 - utils - INFO - 
+        WITH ranked_anime AS (
+            SELECT
+                tw.date_pulled,
+                tw.myanimelist_id,
+                tw.title,
+                tw.rank,
+                tw.score,
+                (tw.rank - lw.rank) as rank_change,
+                (tw.score - lw.score) as score_change,
+                ROW_NUMBER() OVER (PARTITION BY tw.date_pulled ORDER BY tw.rank) AS rank_within_date
+            FROM
+                (SELECT * FROM `mal-data-engineering.my_anime_list.top_airing_anime`
+                  WHERE DATE(date_pulled) = CURRENT_DATE('Asia/Tokyo')
+                ) AS tw
+            LEFT JOIN
+                (SELECT * FROM `mal-data-engineering.my_anime_list.top_airing_anime`
+                  WHERE DATE(date_pulled) = DATE_ADD(CURRENT_DATE('Asia/Tokyo'), INTERVAL -7 DAY)
+                ) AS lw
+            ON
+                tw.myanimelist_id = lw.myanimelist_id
+            )
+
+            SELECT
+            date_pulled,
+            myanimelist_id,
+            title,
+            rank,
+            score,
+            rank_change,
+            score_change
+            FROM
+            ranked_anime
+            WHERE
+            rank_within_date <= 10
+            ORDER BY
+            rank_within_date,
+            date_pulled DESC
+            ;
+        
+2024-08-18 15:25:47,257 - utils - INFO - Table exists
+2024-08-18 15:25:51,186 - utils - INFO - Weekly Top 10 table updated
