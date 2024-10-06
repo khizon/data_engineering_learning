@@ -82,3 +82,39 @@
         
 2024-10-06 15:28:09,079 - utils - INFO - Table exists
 2024-10-06 15:28:13,662 - utils - INFO - Weekly Top 10 table updated
+2024-10-06 15:37:07,813 - utils - INFO - Getting Keys. Current Working Directory: /__w/data_engineering_learning/data_engineering_learning
+2024-10-06 15:37:07,813 - utils - INFO - Google Application Credentials Set
+2024-10-06 15:37:07,813 - utils - INFO - /__w/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2024-10-06 15:37:07,813 - utils - INFO - MAL Headers Loaded
+2024-10-06 15:37:07,813 - utils - INFO - Getting Keys. Current Working Directory: /__w/data_engineering_learning/data_engineering_learning
+2024-10-06 15:37:07,813 - utils - INFO - Google Application Credentials Set
+2024-10-06 15:37:07,813 - utils - INFO - /__w/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2024-10-06 15:37:07,814 - utils - INFO - MAL Headers Loaded
+2024-10-06 15:37:07,817 - utils - INFO - 
+        SELECT DISTINCT(taa.myanimelist_id)
+        FROM `mal-data-engineering.my_anime_list.top_airing_anime` AS taa
+        LEFT JOIN `mal-data-engineering.my_anime_list.anime_info` AS ai
+        ON taa.myanimelist_id = ai.myanimelist_id
+        WHERE DATE(taa.date_pulled) = CURRENT_DATE()
+        AND ai.myanimelist_id IS NULL
+        
+2024-10-06 15:37:08,985 - utils - INFO - Anime ids not in table yet: 16
+2024-10-06 15:37:27,960 - utils - INFO - Getting Keys. Current Working Directory: /__w/data_engineering_learning/data_engineering_learning
+2024-10-06 15:37:27,960 - utils - INFO - Google Application Credentials Set
+2024-10-06 15:37:27,960 - utils - INFO - /__w/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2024-10-06 15:37:27,960 - utils - INFO - MAL Headers Loaded
+2024-10-06 15:37:27,960 - utils - INFO - Getting Keys. Current Working Directory: /__w/data_engineering_learning/data_engineering_learning
+2024-10-06 15:37:27,960 - utils - INFO - Google Application Credentials Set
+2024-10-06 15:37:27,961 - utils - INFO - /__w/data_engineering_learning/data_engineering_learning/secrets/headers.json
+2024-10-06 15:37:27,961 - utils - INFO - MAL Headers Loaded
+2024-10-06 15:37:27,963 - utils - INFO - 
+        SELECT DISTINCT(taa.myanimelist_id)
+        FROM `mal-data-engineering.my_anime_list.top_airing_anime` AS taa
+        LEFT JOIN `mal-data-engineering.my_anime_list.anime_info` AS ai
+        ON taa.myanimelist_id = ai.myanimelist_id
+        WHERE DATE(taa.date_pulled) = CURRENT_DATE()
+        AND ai.myanimelist_id IS NULL
+        
+2024-10-06 15:37:29,187 - utils - INFO - Anime ids not in table yet: 16
+2024-10-06 15:37:29,200 - utils - INFO - Anime Info rows to upload:12
+2024-10-06 15:37:29,522 - utils - INFO - Table exists
